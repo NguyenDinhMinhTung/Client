@@ -43,7 +43,9 @@ namespace Client
             //udpProtocol = new UDPProtocol(localPort);
             //udpProtocol.UdpSocketReceiveStart(RunCommand);
 
-            chatWindow = new ChatWindow((mess)=> { });
+            chatWindow = new ChatWindow((mess)=> {
+                SendMessage(serverIP, serverPort, mess);
+            });
             chatWindow.Show();
 
             //ID = Properties.Settings.Default.ID;
@@ -72,6 +74,18 @@ namespace Client
 
             //sendIPPortThread.Start();
             //registerIDThread.Start();
+        }
+
+        private void SendMessage(String serverIP, int serverPort, String message)
+        {
+            byte[] messagebyte = System.Text.Encoding.UTF8.GetBytes(message);
+            byte[] sendbyte = new byte[message.Length + 2];
+
+            sendbyte[0] = 8;
+            sendbyte[1] = (byte)ID;
+
+            Array.Copy(messagebyte, 0, sendbyte, 2, messagebyte.Length);
+            udpProtocol.UdpSocketSend(serverIP, serverPort, sendbyte);
         }
 
         void RunCommand(IPEndPoint ipEndPoint, byte[] command)
