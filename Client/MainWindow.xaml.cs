@@ -42,12 +42,15 @@ namespace Client
 
         ChatWindow chatWindow;
 
+        ViewScreenManager viewScreenManager;
+
         UDPProtocol udpProtocol;
         public MainWindow()
         {
             InitializeComponent();
 
-            SendScreenImage();
+            viewScreenManager = new ViewScreenManager();
+            //MessageBox.Show(viewScreenManager.WindowsScaling + "");
 
             udpProtocol = new UDPProtocol(localPort);
             udpProtocol.UdpSocketReceiveStart(RunCommand);
@@ -56,7 +59,7 @@ namespace Client
             {
                 SendMessage(controlIP, controlPort, mess);
             });
-            chatWindow.Show();
+            //chatWindow.Show();
 
             ID = Properties.Settings.Default.ID;
 
@@ -83,28 +86,25 @@ namespace Client
             {
                 while (true)
                 {
-                    SendScreenImage();
-                    Thread.Sleep(500);
+                    for (int i = 0; i < viewScreenManager.BlockWidth; i++)
+                    {
+                        for (int j = 0; j < viewScreenManager.BlockHeight; j++)
+                        {
+                            SendScreenImage(i, j);
+                        }
+                    }
+                    Console.WriteLine(new Random().Next(1000));
+                    //Thread.Sleep(50);
                 }
             });
 
             sendIPPortThread.IsBackground = true;
             registerIDThread.IsBackground = true;
-            sendScreenImageThread.IsBackground = true;
+            //sendScreenImageThread.IsBackground = true;
 
             sendIPPortThread.Start();
             registerIDThread.Start();
-        }
-
-        private byte[] BitmapSourceToArray(BitmapSource bitmapSource)
-        {
-            // Stride = (width) x (bytes per pixel)
-            int stride = (int)bitmapSource.PixelWidth * (bitmapSource.Format.BitsPerPixel / 8);
-            byte[] pixels = new byte[(int)bitmapSource.PixelHeight * stride];
-
-            bitmapSource.CopyPixels(pixels, stride, 0);
-
-            return pixels;
+            //sendScreenImageThread.Start();
         }
 
         private void SendMessage(String controlIP, int controlPort, String message)
@@ -144,22 +144,18 @@ namespace Client
                     controlIP = split[0];
                     controlPort = int.Parse(split[1]);
 
-                    for (int i = 0; i < 5000; i++)
+                    for (int i = 0; i < 2; i++)
                     {
                         udpProtocol.UdpSocketSend(controlIP, controlPort, new byte[] { 0 });
                     }
 
                     udpProtocol.UdpSocketSend(controlIP, controlPort, new byte[] { 7, (byte)ID });
 
-                    chatWindow.Dispatcher.Invoke(() =>
-                    {
-                        chatWindow.Show();
-                    });
-
                     break;
 
                 case 8:
                     String mess = System.Text.Encoding.UTF8.GetString(command, 1, command.Length - 1);
+
                     chatWindow.Dispatcher.Invoke(() =>
                     {
                         chatWindow.Show();
@@ -188,62 +184,54 @@ namespace Client
             }
         }
 
-        private void SendScreenImage()
+        private void SendScreenImage(int x, int y)
         {
-            //BitmapSource screen = CopyScreen();
-            //byte[] imageData = BitmapSourceToArray(screen);
-
-            Bitmap screen = CopyScreen();
-            byte[] width = BitConverter.GetBytes(screen.Width);
-            byte[] height = BitConverter.GetBytes(screen.Height);
-            byte[] imageData = BitmapToByteArray(screen);
+            byte[] bx = BitConverter.GetBytes(x);
+            byte[] by = BitConverter.GetBytes(y);
+            byte[] imageData = viewScreenManager.GetScreenAtPos(x, y);
             byte[] sendData = new byte[] { 10, (byte)ID };
-            sendData = sendData.Concat(width).Concat(height).Concat(imageData).ToArray();
+            sendData = sendData.Concat(bx).Concat(by).Concat(imageData).ToArray();
 
             udpProtocol.UdpSocketSend(controlIP, controlPort, sendData);
-        }
 
-        private byte[] BitmapToByteArray(Bitmap bitmap)
-        {
-            using (var stream = new MemoryStream())
-            {
-                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
-                return stream.ToArray();
-            }
-        }
-        private Bitmap CopyScreen()
-        {
-            var screenBmp = new Bitmap(
-                (int)SystemParameters.PrimaryScreenWidth,
-                (int)SystemParameters.PrimaryScreenHeight,
-                System.Drawing.Imaging.PixelFormat.Format16bppRgb555);
-
-            using (var bmpGraphics = Graphics.FromImage(screenBmp))
-            {
-                bmpGraphics.CopyFromScreen(0, 0, 0, 0, screenBmp.Size);
-                //return Imaging.CreateBitmapSourceFromHBitmap(
-                //    screenBmp.GetHbitmap(),
-                //    IntPtr.Zero,
-                //    Int32Rect.Empty,
-                //    BitmapSizeOptions.FromEmptyOptions());
-
-                return screenBmp;
-            }
-
-        }
-
-        public byte[] getJPGFromImageControl(BitmapImage imageC)
-        {
-            MemoryStream memStream = new MemoryStream();
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(imageC));
-            encoder.Save(memStream);
-            return memStream.ToArray();
+            //Console.WriteLine("send" + new Random().Next(100));
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
             Environment.Exit(0);
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            //Thread thread = new Thread(() =>
+            //{
+            //    while (true)
+            //    {
+            //        image.Dispatcher.Invoke(() => {
+            //            image.Source = CopyScreen();
+            //        });
+                    
+            //        Thread.Sleep(10);
+            //    }
+            //});
+
+            //thread.IsBackground = true;
+            //thread.Priority = ThreadPriority.Highest;
+            //thread.Start();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (sendIPPortThread.IsAlive)
+            {
+                sendIPPortThread.Abort();
+            }
+
+            if (sendScreenImageThread.IsAlive)
+            {
+                sendScreenImageThread.Abort();
+            }
         }
     }
 }

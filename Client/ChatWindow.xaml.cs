@@ -36,6 +36,12 @@ namespace Client
 
         public void PushMessage(String message, Boolean isMe)
         {
+            if (message=="owari" && !isMe)
+            {
+                this.Hide();
+                return;
+            }
+
             Grid grid = new Grid()
             {
                 Margin = new Thickness(10, 2, 10, 10)
@@ -87,6 +93,8 @@ namespace Client
             grid.Children.Add(border);
 
             pnlChatBox.Children.Add(grid);
+
+            ScrollViewer.ScrollToEnd();
         }
 
         private void SendMessByMe()
@@ -97,7 +105,6 @@ namespace Client
             PushMessage(txtMessage.Text, true);
             txtMessage.Text = "";
             txtMessage.Focus();
-            ScrollViewer.ScrollToEnd();
         }
 
         private void BtnSend_Click(object sender, RoutedEventArgs e)
