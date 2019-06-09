@@ -1,0 +1,17 @@
+C:\Users\megas\source\repos\Client\Client\bin\Release\Client.exe.config
+C:\Users\megas\source\repos\Client\Client\bin\Release\Client.exe
+C:\Users\megas\source\repos\Client\Client\bin\Release\Client.pdb
+C:\Users\megas\source\repos\Client\Client\obj\Release\Client.csprojAssemblyReference.cache
+C:\Users\megas\source\repos\Client\Client\obj\Release\ChatWindow.g.cs
+C:\Users\megas\source\repos\Client\Client\obj\Release\MainWindow.g.cs
+C:\Users\megas\source\repos\Client\Client\obj\Release\App.g.cs
+C:\Users\megas\source\repos\Client\Client\obj\Release\Client_MarkupCompile.cache
+C:\Users\megas\source\repos\Client\Client\obj\Release\Client_MarkupCompile.lref
+C:\Users\megas\source\repos\Client\Client\obj\Release\ChatWindow.baml
+C:\Users\megas\source\repos\Client\Client\obj\Release\MainWindow.baml
+C:\Users\megas\source\repos\Client\Client\obj\Release\Client.g.resources
+C:\Users\megas\source\repos\Client\Client\obj\Release\Client.Properties.Resources.resources
+C:\Users\megas\source\repos\Client\Client\obj\Release\Client.csproj.GenerateResource.cache
+C:\Users\megas\source\repos\Client\Client\obj\Release\Client.csproj.CoreCompileInputs.cache
+C:\Users\megas\source\repos\Client\Client\obj\Release\Client.exe
+C:\Users\megas\source\repos\Client\Client\obj\Release\Client.pdb

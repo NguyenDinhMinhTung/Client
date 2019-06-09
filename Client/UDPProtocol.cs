@@ -19,11 +19,14 @@ namespace Client
         {
             this.localPort = localPort;
 
-            System.Net.IPAddress localIpAddress = System.Net.IPAddress.Parse(GetLocalIPAddress());
+            //System.Net.IPAddress localIpAddress = System.Net.IPAddress.Parse(GetLocalIPAddress());
 
-            System.Net.IPEndPoint localEP = new System.Net.IPEndPoint(localIpAddress, localPort);
+            //System.Net.IPEndPoint localEP = new System.Net.IPEndPoint(localIpAddress, localPort);
 
-            udpClient = new System.Net.Sockets.UdpClient(localEP);
+            //udpClient = new System.Net.Sockets.UdpClient(localEP);
+
+            udpClient = new System.Net.Sockets.UdpClient(localPort);
+            udpClient.AllowNatTraversal(true);
         }
 
         public void UdpSocketSend(IPEndPoint iPEndPoint, byte[] data)
@@ -78,7 +81,6 @@ namespace Client
                 socketReceiveThread.Abort();
             }
             udpClient.Close();
-            udpClient.Dispose();
         }
     }
 }

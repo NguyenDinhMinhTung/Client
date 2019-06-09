@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\megas\source\repos\Client\Client\obj\Debug\
+C:\Users\megas\source\repos\Client\Client\obj\Release\
 Client
 none
 false
-DEBUG;TRACE
+TRACE
 C:\Users\megas\source\repos\Client\Client\App.xaml
 2-1106032659
 
-81356471808
-141737414579
+71925810825
+13-1505183044
 ChatWindow.xaml;MainWindow.xaml;
 
-True
+False
 
