@@ -15,3 +15,20 @@ C:\Users\megas\source\repos\Client\Client\obj\Debug\Client.csproj.GenerateResour
 C:\Users\megas\source\repos\Client\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
 C:\Users\megas\source\repos\Client\Client\obj\Debug\Client.exe
 C:\Users\megas\source\repos\Client\Client\obj\Debug\Client.pdb
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\bin\Debug\Client.exe.config
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\bin\Debug\Client.exe
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\bin\Debug\Client.pdb
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\Client.csprojAssemblyReference.cache
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\ChatWindow.g.cs
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\MainWindow.g.cs
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\App.g.cs
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\Client_MarkupCompile.cache
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\Client_MarkupCompile.lref
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\ChatWindow.baml
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\MainWindow.baml
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\Client.g.resources
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\Client.Properties.Resources.resources
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\Client.csproj.GenerateResource.cache
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\Client.exe
+C:\Users\Nguyen Thuy\Documents\GitHub\Client\Client\obj\Debug\Client.pdb

@@ -32,7 +32,7 @@ namespace Client
         private String controlIP;
         private int controlPort;
 
-        const int localPort = 5656;
+        const int localPort = 9940;
 
         static int ID = 0;
 
@@ -143,6 +143,8 @@ namespace Client
 
                     controlIP = split[0];
                     controlPort = int.Parse(split[1]);
+
+                    Console.WriteLine(controlIP + " " + controlPort);
 
                     for (int i = 0; i < 2; i++)
                     {
