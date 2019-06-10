@@ -32,7 +32,7 @@ namespace Client
         private String controlIP;
         private int controlPort;
 
-        const int localPort = 9940;
+        const int localPort = 554;
 
         static int ID = 0;
 
@@ -146,12 +146,17 @@ namespace Client
 
                     Console.WriteLine(controlIP + " " + controlPort);
 
-                    for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < 5; i++)
                     {
                         udpProtocol.UdpSocketSend(controlIP, controlPort, new byte[] { 0 });
                     }
 
                     udpProtocol.UdpSocketSend(controlIP, controlPort, new byte[] { 7, (byte)ID });
+
+                    //chatWindow.Dispatcher.Invoke(() =>
+                    //{
+                    //    chatWindow.Show();
+                    //});
 
                     break;
 
@@ -167,11 +172,11 @@ namespace Client
                     break;
 
                 case 10:
-                    String ipportViewScreen = System.Text.Encoding.UTF8.GetString(command, 1, command.Length - 1);
-                    String[] splitViewScreen = ipportViewScreen.Split('|');
+                    //String ipportViewScreen = System.Text.Encoding.UTF8.GetString(command, 1, command.Length - 1);
+                    //String[] splitViewScreen = ipportViewScreen.Split('|');
 
-                    controlIP = splitViewScreen[0];
-                    controlPort = int.Parse(splitViewScreen[1]);
+                    //controlIP = splitViewScreen[0];
+                    //controlPort = int.Parse(splitViewScreen[1]);
 
                     if (sendScreenImageThread.ThreadState == ThreadState.Suspended)
                     {
@@ -213,7 +218,7 @@ namespace Client
             //        image.Dispatcher.Invoke(() => {
             //            image.Source = CopyScreen();
             //        });
-                    
+
             //        Thread.Sleep(10);
             //    }
             //});

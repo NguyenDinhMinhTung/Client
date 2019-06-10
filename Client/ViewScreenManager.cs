@@ -50,35 +50,39 @@ namespace Client
 
         private BitmapSource CopyScreen(int x, int y)
         {
-            var screenBmp = new Bitmap(imageWidth, imageHeight,
-                System.Drawing.Imaging.PixelFormat.Format16bppRgb555);
-
-            using (var bmpGraphics = Graphics.FromImage(screenBmp))
+            using (var screenBmp = new Bitmap(imageWidth, imageHeight,
+                System.Drawing.Imaging.PixelFormat.Format16bppRgb555))
             {
-                bmpGraphics.CopyFromScreen(imageWidth * x, imageHeight * y, 0, 0, screenBmp.Size);
-                return Imaging.CreateBitmapSourceFromHBitmap(
-                    screenBmp.GetHbitmap(),
-                    IntPtr.Zero,
-                    Int32Rect.Empty,
-                    BitmapSizeOptions.FromEmptyOptions());
+                using (var bmpGraphics = Graphics.FromImage(screenBmp))
+                {
+                    bmpGraphics.CopyFromScreen(imageWidth * x, imageHeight * y, 0, 0, screenBmp.Size);
+                    return Imaging.CreateBitmapSourceFromHBitmap(
+                        screenBmp.GetHbitmap(),
+                        IntPtr.Zero,
+                        Int32Rect.Empty,
+                        BitmapSizeOptions.FromEmptyOptions());
+                }
             }
         }
 
         public byte[] GetScreenAtPos(int x, int y)
         {
             BitmapSource bitmapSource = CopyScreen(x, y);
-            bitmapSource.Freeze();
+            //bitmapSource.Freeze();
 
             return getJPGFromBitmapSource(bitmapSource);
         }
 
         private byte[] getJPGFromBitmapSource(BitmapSource imageC)
         {
-            MemoryStream memStream = new MemoryStream();
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(imageC));
-            encoder.Save(memStream);
-            return memStream.ToArray();
+            using (MemoryStream memStream = new MemoryStream())
+            {
+                JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(imageC));
+                imageC = null;
+                encoder.Save(memStream);
+                return memStream.ToArray();
+            }
         }
     }
 }

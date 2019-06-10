@@ -32,6 +32,9 @@ namespace Client
         public void UdpSocketSend(IPEndPoint iPEndPoint, byte[] data)
         {
             udpClient.Send(data, data.Length, iPEndPoint);
+            data = null;
+            GC.Collect();
+            
         }
 
         public void UdpSocketSend(String host, int port, byte[] data)
