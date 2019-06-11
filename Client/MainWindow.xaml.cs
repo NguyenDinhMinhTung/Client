@@ -32,7 +32,7 @@ namespace Client
         private String controlIP;
         private int controlPort;
 
-        const int localPort = 554;
+        const int localPort = 54756;
 
         static int ID = 0;
 
