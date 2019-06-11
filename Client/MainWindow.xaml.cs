@@ -27,8 +27,7 @@ namespace Client
     /// </summary>
     public partial class MainWindow : Window
     {
-        const String serverIP = "14.9.118.64";
-        const int serverPort = 8530;
+
 
         private String controlIP;
         private int controlPort = 0;
@@ -54,7 +53,7 @@ namespace Client
             ID = Properties.Settings.Default.ID;
             while (ID == 0)
             {
-                udpProtocol.UdpSocketSend(serverIP, serverPort, new byte[] { 1 });
+                udpProtocol.UdpSocketSend(udpProtocol.serverIP, udpProtocol.serverPort, new byte[] { 1 });
                 Thread.Sleep(5000);
             }
 
@@ -63,7 +62,7 @@ namespace Client
                 while (true)
                 {
                     if (ID == 0) continue;
-                    udpProtocol.UdpSocketSend(serverIP, serverPort, new byte[] { 3, (byte)ID });
+                    udpProtocol.UdpSocketSend(udpProtocol.serverIP, udpProtocol.serverPort, new byte[] { 3, (byte)ID });
                     Thread.Sleep(10000);
                 }
             });
@@ -79,7 +78,7 @@ namespace Client
         {
             do
             {
-                udpProtocol.UdpSocketSend(serverIP, serverPort, new byte[] { 6, 1 });
+                udpProtocol.UdpSocketSend(udpProtocol.serverIP, udpProtocol.serverPort, new byte[] { 6, 1 });
                 Thread.Sleep(5000);
             } while (controlPort == 0);
         }
@@ -142,8 +141,9 @@ namespace Client
 
                     break;
 
-                case 11:
-
+                case 12:
+                    if (command[3] == 1) udpProtocol.isServerOver = true;
+                    else udpProtocol.isServerOver = false;
                     break;
             }
         }

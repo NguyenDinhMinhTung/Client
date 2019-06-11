@@ -25,6 +25,8 @@ namespace Client
                 SendMessage(ControlIP, ControlPort, mess);
             });
             SetControlIPPort(ControlIP, ControlPort);
+
+            chatWindow.Show();
         }
 
         private void SendMessage(String controlIP, int controlPort, String message)
@@ -33,7 +35,7 @@ namespace Client
             byte[] sendbyte = null;
             if (udpProtocol.isServerOver)
             {
-                sendbyte = new byte[messagebyte.Length + 2];
+                sendbyte = new byte[messagebyte.Length + 4];
 
                 sendbyte[0] = 11;
                 sendbyte[1] = 8;
@@ -41,6 +43,8 @@ namespace Client
                 sendbyte[3] = 1;
 
                 Array.Copy(messagebyte, 0, sendbyte, 4, messagebyte.Length);
+
+                udpProtocol.UdpSocketSend(udpProtocol.serverIP, udpProtocol.serverPort, sendbyte);
             }
             else
             {
@@ -52,8 +56,10 @@ namespace Client
 
                 Array.Copy(messagebyte, 0, sendbyte, 3, messagebyte.Length);
 
+                udpProtocol.UdpSocketSend(controlIP, controlPort, sendbyte);
+
             }
-            udpProtocol.UdpSocketSend(controlIP, controlPort, sendbyte);
+            
         }
 
         public void PushMessage(String mess, Boolean isMe)

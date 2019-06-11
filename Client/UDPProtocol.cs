@@ -17,6 +17,10 @@ namespace Client
         private int localPort;
 
         public bool isServerOver = false;
+
+        public String serverIP = "14.9.118.64";
+        public int serverPort = 8530;
+
         public UDPProtocol(int localPort)
         {
             this.localPort = localPort;
