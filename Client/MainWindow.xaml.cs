@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Client.model;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -30,38 +31,32 @@ namespace Client
         const int serverPort = 8530;
 
         private String controlIP;
-        private int controlPort;
+        private int controlPort = 0;
 
         const int localPort = 554;
 
         static int ID = 0;
 
         private Thread sendIPPortThread;
-        private Thread registerIDThread;
-        private Thread sendScreenImageThread;
 
-        ChatWindow chatWindow;
+        private ViewScreenManager viewScreenManager;
+        private ChatWindowManager chatWindowManager;
 
-        ViewScreenManager viewScreenManager;
+        private UDPProtocol udpProtocol;
 
-        UDPProtocol udpProtocol;
         public MainWindow()
         {
             InitializeComponent();
 
-            viewScreenManager = new ViewScreenManager();
-            //MessageBox.Show(viewScreenManager.WindowsScaling + "");
-
             udpProtocol = new UDPProtocol(localPort);
             udpProtocol.UdpSocketReceiveStart(RunCommand);
 
-            chatWindow = new ChatWindow((mess) =>
-            {
-                SendMessage(controlIP, controlPort, mess);
-            });
-            //chatWindow.Show();
-
             ID = Properties.Settings.Default.ID;
+            while (ID == 0)
+            {
+                udpProtocol.UdpSocketSend(serverIP, serverPort, new byte[] { 1 });
+                Thread.Sleep(5000);
+            }
 
             sendIPPortThread = new Thread(() =>
             {
@@ -73,51 +68,20 @@ namespace Client
                 }
             });
 
-            registerIDThread = new Thread(() =>
-            {
-                while (ID == 0)
-                {
-                    udpProtocol.UdpSocketSend(serverIP, serverPort, new byte[] { 1 });
-                    Thread.Sleep(5000);
-                }
-            });
-
-            sendScreenImageThread = new Thread(() =>
-            {
-                while (true)
-                {
-                    for (int i = 0; i < viewScreenManager.BlockWidth; i++)
-                    {
-                        for (int j = 0; j < viewScreenManager.BlockHeight; j++)
-                        {
-                            SendScreenImage(i, j);
-                        }
-                    }
-                    Console.WriteLine(new Random().Next(1000));
-                    //Thread.Sleep(50);
-                }
-            });
+            viewScreenManager = new ViewScreenManager(ID, controlIP, controlPort, udpProtocol);
+            chatWindowManager = new ChatWindowManager(ID, controlIP, controlPort, udpProtocol);
 
             sendIPPortThread.IsBackground = true;
-            registerIDThread.IsBackground = true;
-            //sendScreenImageThread.IsBackground = true;
-
             sendIPPortThread.Start();
-            registerIDThread.Start();
-            //sendScreenImageThread.Start();
         }
 
-        private void SendMessage(String controlIP, int controlPort, String message)
+        void GetControlIPPort()
         {
-            byte[] messagebyte = System.Text.Encoding.UTF8.GetBytes(message);
-            byte[] sendbyte = new byte[messagebyte.Length + 2];
-
-            sendbyte[0] = 8;
-            sendbyte[1] = (byte)ID;
-
-
-            Array.Copy(messagebyte, 0, sendbyte, 2, messagebyte.Length);
-            udpProtocol.UdpSocketSend(controlIP, controlPort, sendbyte);
+            do
+            {
+                udpProtocol.UdpSocketSend(serverIP, serverPort, new byte[] { 6, 1 });
+                Thread.Sleep(5000);
+            } while (controlPort == 0);
         }
 
         void RunCommand(IPEndPoint ipEndPoint, byte[] command)
@@ -137,6 +101,17 @@ namespace Client
 
                     break;
 
+                case 6:
+                    String str = System.Text.Encoding.UTF8.GetString(command, 1, command.Length - 1);
+                    IPPort ipPort = IPPort.getIPPort(str);
+
+                    if (command[1] == 1)
+                    {
+                        controlIP = ipPort.IP;
+                        controlPort = ipPort.Port;
+                    }
+                    break;
+
                 case 7:
                     String ipport = System.Text.Encoding.UTF8.GetString(command, 1, command.Length - 1);
                     String[] split = ipport.Split('|');
@@ -151,57 +126,26 @@ namespace Client
                         udpProtocol.UdpSocketSend(controlIP, controlPort, new byte[] { 0 });
                     }
 
-                    udpProtocol.UdpSocketSend(controlIP, controlPort, new byte[] { 7, (byte)ID });
-
-                    //chatWindow.Dispatcher.Invoke(() =>
-                    //{
-                    //    chatWindow.Show();
-                    //});
+                    //udpProtocol.UdpSocketSend(controlIP, controlPort, new byte[] { 7, (byte)ID });
 
                     break;
 
                 case 8:
-                    String mess = System.Text.Encoding.UTF8.GetString(command, 1, command.Length - 1);
+                    String mess = System.Text.Encoding.UTF8.GetString(command, 3, command.Length - 3);
 
-                    chatWindow.Dispatcher.Invoke(() =>
-                    {
-                        chatWindow.Show();
-                        chatWindow.PushMessage(mess, false);
-                    });
+                    chatWindowManager.PushMessage(mess, false);
 
                     break;
 
                 case 10:
-                    //String ipportViewScreen = System.Text.Encoding.UTF8.GetString(command, 1, command.Length - 1);
-                    //String[] splitViewScreen = ipportViewScreen.Split('|');
+                    viewScreenManager.StartThread();
 
-                    //controlIP = splitViewScreen[0];
-                    //controlPort = int.Parse(splitViewScreen[1]);
+                    break;
 
-                    if (sendScreenImageThread.ThreadState == ThreadState.Suspended)
-                    {
-                        sendScreenImageThread.Resume();
-                    }
-                    else
-                    {
-                        sendScreenImageThread.Start();
-                    }
+                case 11:
 
                     break;
             }
-        }
-
-        private void SendScreenImage(int x, int y)
-        {
-            byte[] bx = BitConverter.GetBytes(x);
-            byte[] by = BitConverter.GetBytes(y);
-            byte[] imageData = viewScreenManager.GetScreenAtPos(x, y);
-            byte[] sendData = new byte[] { 10, (byte)ID };
-            sendData = sendData.Concat(bx).Concat(by).Concat(imageData).ToArray();
-
-            udpProtocol.UdpSocketSend(controlIP, controlPort, sendData);
-
-            //Console.WriteLine("send" + new Random().Next(100));
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -211,21 +155,6 @@ namespace Client
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //Thread thread = new Thread(() =>
-            //{
-            //    while (true)
-            //    {
-            //        image.Dispatcher.Invoke(() => {
-            //            image.Source = CopyScreen();
-            //        });
-
-            //        Thread.Sleep(10);
-            //    }
-            //});
-
-            //thread.IsBackground = true;
-            //thread.Priority = ThreadPriority.Highest;
-            //thread.Start();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -233,11 +162,6 @@ namespace Client
             if (sendIPPortThread.IsAlive)
             {
                 sendIPPortThread.Abort();
-            }
-
-            if (sendScreenImageThread.IsAlive)
-            {
-                sendScreenImageThread.Abort();
             }
         }
     }
