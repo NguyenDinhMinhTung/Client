@@ -15,6 +15,8 @@ namespace Client
         Thread socketReceiveThread;
 
         private int localPort;
+
+        public bool isServerOver = false;
         public UDPProtocol(int localPort)
         {
             this.localPort = localPort;

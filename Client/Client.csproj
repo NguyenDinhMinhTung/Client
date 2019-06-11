@@ -58,6 +58,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ChatWindowManager.cs" />
+    <Compile Include="model\IPPort.cs" />
+    <Compile Include="model\User.cs" />
     <Compile Include="UDPProtocol.cs" />
     <Compile Include="ViewScreenManager.cs" />
     <Page Include="ChatWindow.xaml">

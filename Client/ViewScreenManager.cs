@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -25,6 +26,14 @@ namespace Client
         private int blockWidth;
         private int blockHeight;
 
+        private int ID;
+        private String controlIP;
+        private int controlPort;
+
+        private UDPProtocol udpProtocol;
+
+        private Thread sendScreenImageThread;
+
         public double WindowsScaling { get { return windowsScaling; } }
         public int ImageWidth { get { return imageWidth; } set { imageWidth = value; } }
         public int ImageHeight { get { return imageHeight; } set { imageHeight = value; } }
@@ -33,7 +42,7 @@ namespace Client
         public int BlockWidth { get { return blockWidth; } set { blockWidth = value; } }
         public int BlockHeight { get { return blockHeight; } set { blockHeight = value; } }
 
-        public ViewScreenManager()
+        public ViewScreenManager(int ID, String controlIP, int controlPort, UDPProtocol udpProtocol)
         {
             this.windowsScaling = GetWindowsScaling();
             this.screenWidth = Screen.PrimaryScreen.Bounds.Width;
@@ -41,6 +50,46 @@ namespace Client
 
             this.blockWidth = (int)Math.Ceiling((double)screenWidth / imageWidth);
             this.blockHeight = (int)Math.Ceiling((double)ScreenHeight / ImageHeight);
+
+            this.ID = ID;
+            this.udpProtocol = udpProtocol;
+            this.controlIP = controlIP;
+            this.controlPort = controlPort;
+
+            sendScreenImageThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    for (int i = 0; i < BlockWidth; i++)
+                    {
+                        for (int j = 0; j < BlockHeight; j++)
+                        {
+                            SendScreenImage(i, j);
+                        }
+                    }
+                    Console.WriteLine(new Random().Next(1000));
+                    //Thread.Sleep(50);
+                }
+            });
+            sendScreenImageThread.IsBackground = true;
+        }
+
+        public void StartThread()
+        {
+            sendScreenImageThread.Start();
+        }
+
+        private void SendScreenImage(int x, int y)
+        {
+            byte[] bx = BitConverter.GetBytes(x);
+            byte[] by = BitConverter.GetBytes(y);
+            byte[] imageData = GetScreenAtPos(x, y);
+            byte[] sendData = new byte[] { 10, (byte)ID };
+            sendData = sendData.Concat(bx).Concat(by).Concat(imageData).ToArray();
+
+            udpProtocol.UdpSocketSend(controlIP, controlPort, sendData);
+
+            //Console.WriteLine("send" + new Random().Next(100));
         }
 
         private double GetWindowsScaling()
