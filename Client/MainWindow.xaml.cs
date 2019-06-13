@@ -154,11 +154,6 @@ namespace Client
                     if (command[3] == 1) udpProtocol.isServerOver = true;
                     else udpProtocol.isServerOver = false;
                     break;
-
-                case 12:
-                    if (command[3] == 0) udpProtocol.isServerOver = false;
-                    else udpProtocol.isServerOver = true;
-                    break;
             }
         }
 
