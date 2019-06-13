@@ -14,18 +14,18 @@ namespace Client
         private System.Net.Sockets.UdpClient udpClient;
         Thread socketReceiveThread;
 
+        public String serverIP = "14.9.118.64";
+        public int serverPort = 8530;
+
         private int localPort;
 
         public bool isServerOver = false;
+
+        private IPEndPoint serverIPEndPoint;
         public UDPProtocol(int localPort)
         {
             this.localPort = localPort;
-
-            //System.Net.IPAddress localIpAddress = System.Net.IPAddress.Parse(GetLocalIPAddress());
-
-            //System.Net.IPEndPoint localEP = new System.Net.IPEndPoint(localIpAddress, localPort);
-
-            //udpClient = new System.Net.Sockets.UdpClient(localEP);
+            this.serverIPEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), serverPort);
 
             udpClient = new System.Net.Sockets.UdpClient(localPort);
             udpClient.AllowNatTraversal(true);
@@ -33,14 +33,22 @@ namespace Client
 
         public void UdpSocketSend(IPEndPoint iPEndPoint, byte[] data)
         {
+            if (isServerOver&& iPEndPoint.Address.ToString()!=serverIP)
+            {
+                data = new byte[] { 11 }.Concat(data).ToArray();
+                iPEndPoint = serverIPEndPoint;
+            }
             udpClient.Send(data, data.Length, iPEndPoint);
-            data = null;
-            GC.Collect();
-            
         }
 
         public void UdpSocketSend(String host, int port, byte[] data)
         {
+            if (isServerOver && host!=serverIP)
+            {
+                data = new byte[] { 11 }.Concat(data).ToArray();
+                host = serverIP;
+                port = serverPort;
+            }
             udpClient.Send(data, data.Length, host, port);
         }
 

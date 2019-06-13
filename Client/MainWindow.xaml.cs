@@ -27,9 +27,6 @@ namespace Client
     /// </summary>
     public partial class MainWindow : Window
     {
-        const String serverIP = "14.9.118.64";
-        const int serverPort = 8530;
-
         private String controlIP;
         private int controlPort = 0;
 
@@ -54,7 +51,7 @@ namespace Client
             ID = Properties.Settings.Default.ID;
             while (ID == 0)
             {
-                udpProtocol.UdpSocketSend(serverIP, serverPort, new byte[] { 1 });
+                udpProtocol.UdpSocketSend(udpProtocol.serverIP, udpProtocol.serverPort, new byte[] { 1 });
                 Thread.Sleep(5000);
             }
 
@@ -63,7 +60,7 @@ namespace Client
                 while (true)
                 {
                     if (ID == 0) continue;
-                    udpProtocol.UdpSocketSend(serverIP, serverPort, new byte[] { 3, (byte)ID });
+                    udpProtocol.UdpSocketSend(udpProtocol.serverIP, udpProtocol.serverPort, new byte[] { 3, (byte)ID });
                     Thread.Sleep(10000);
                 }
             });
@@ -79,7 +76,7 @@ namespace Client
         {
             do
             {
-                udpProtocol.UdpSocketSend(serverIP, serverPort, new byte[] { 6, 1 });
+                udpProtocol.UdpSocketSend(udpProtocol.serverIP, udpProtocol.serverPort, new byte[] { 6, 1 });
                 Thread.Sleep(5000);
             } while (controlPort == 0);
         }
@@ -109,6 +106,8 @@ namespace Client
                     {
                         controlIP = ipPort.IP;
                         controlPort = ipPort.Port;
+                        chatWindowManager.SetControlIPPort(controlIP, controlPort);
+                        viewScreenManager.SetControlIPPort(controlIP, controlPort);
                     }
                     break;
 
@@ -118,6 +117,8 @@ namespace Client
 
                     controlIP = split[0];
                     controlPort = int.Parse(split[1]);
+                    chatWindowManager.SetControlIPPort(controlIP, controlPort);
+                    viewScreenManager.SetControlIPPort(controlIP, controlPort);
 
                     Console.WriteLine(controlIP + " " + controlPort);
 
@@ -138,12 +139,24 @@ namespace Client
                     break;
 
                 case 10:
-                    viewScreenManager.StartThread();
+                    if (command[3] == 1)
+                    {
+                        viewScreenManager.StartThread();
+                    }
+                    else
+                    {
+                        viewScreenManager.StopThread();
+                    }
 
                     break;
 
                 case 11:
 
+                    break;
+
+                case 12:
+                    if (command[3] == 0) udpProtocol.isServerOver = false;
+                    else udpProtocol.isServerOver = true;
                     break;
             }
         }

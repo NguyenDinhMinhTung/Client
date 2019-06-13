@@ -22,38 +22,20 @@ namespace Client
             this.ID = ID;
             chatWindow = new ChatWindow(mess =>
             {
-                SendMessage(ControlIP, ControlPort, mess);
+                SendMessage(mess);
             });
             SetControlIPPort(ControlIP, ControlPort);
         }
 
-        private void SendMessage(String controlIP, int controlPort, String message)
+        private void SendMessage(String message)
         {
             byte[] messagebyte = System.Text.Encoding.UTF8.GetBytes(message);
-            byte[] sendbyte = null;
-            if (udpProtocol.isServerOver)
-            {
-                sendbyte = new byte[messagebyte.Length + 2];
-
-                sendbyte[0] = 11;
-                sendbyte[1] = 8;
-                sendbyte[2] = (byte)ID;
-                sendbyte[3] = 1;
-
-                Array.Copy(messagebyte, 0, sendbyte, 4, messagebyte.Length);
-            }
-            else
-            {
-                sendbyte = new byte[messagebyte.Length + 3];
-
-                sendbyte[0] = 8;
-                sendbyte[1] = (byte)ID;
-                sendbyte[2] = 1;
-
-                Array.Copy(messagebyte, 0, sendbyte, 3, messagebyte.Length);
-
-            }
-            udpProtocol.UdpSocketSend(controlIP, controlPort, sendbyte);
+            byte[] sendbyte = new byte[messagebyte.Length + 3];
+            sendbyte[0] = 8;
+            sendbyte[1] = (byte)ID;
+            sendbyte[2] = 1;
+            sendbyte = sendbyte.Concat(messagebyte).ToArray();
+            udpProtocol.UdpSocketSend(ControlIP, ControlPort, sendbyte);
         }
 
         public void PushMessage(String mess, Boolean isMe)

@@ -55,7 +55,16 @@ namespace Client
             this.udpProtocol = udpProtocol;
             this.controlIP = controlIP;
             this.controlPort = controlPort;
+        }
 
+        public void SetControlIPPort(String ControlIP, int ControlPort)
+        {
+            this.controlIP = ControlIP;
+            this.controlPort = ControlPort;
+        }
+
+        public void StartThread()
+        {
             sendScreenImageThread = new Thread(() =>
             {
                 while (true)
@@ -72,11 +81,16 @@ namespace Client
                 }
             });
             sendScreenImageThread.IsBackground = true;
+
+            sendScreenImageThread.Start();
         }
 
-        public void StartThread()
+        public void StopThread()
         {
-            sendScreenImageThread.Start();
+            if (sendScreenImageThread != null && sendScreenImageThread.IsAlive)
+            {
+                sendScreenImageThread.Abort();
+            }
         }
 
         private void SendScreenImage(int x, int y)
@@ -84,7 +98,7 @@ namespace Client
             byte[] bx = BitConverter.GetBytes(x);
             byte[] by = BitConverter.GetBytes(y);
             byte[] imageData = GetScreenAtPos(x, y);
-            byte[] sendData = new byte[] { 10, (byte)ID };
+            byte[] sendData = new byte[] { 10, (byte)ID, 1 };
             sendData = sendData.Concat(bx).Concat(by).Concat(imageData).ToArray();
 
             udpProtocol.UdpSocketSend(controlIP, controlPort, sendData);
