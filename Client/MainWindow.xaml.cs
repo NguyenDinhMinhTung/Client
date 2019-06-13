@@ -30,7 +30,7 @@ namespace Client
         private String controlIP;
         private int controlPort = 0;
 
-        const int localPort = 554;
+        const int localPort = 54756;
 
         static int ID = 0;
 
@@ -150,8 +150,9 @@ namespace Client
 
                     break;
 
-                case 11:
-
+                case 12:
+                    if (command[3] == 1) udpProtocol.isServerOver = true;
+                    else udpProtocol.isServerOver = false;
                     break;
 
                 case 12:

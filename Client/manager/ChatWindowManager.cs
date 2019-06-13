@@ -25,6 +25,8 @@ namespace Client
                 SendMessage(mess);
             });
             SetControlIPPort(ControlIP, ControlPort);
+
+            chatWindow.Show();
         }
 
         private void SendMessage(String message)
